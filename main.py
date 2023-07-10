@@ -20,8 +20,10 @@ client = commands.Bot(command_prefix='$', intents=intents)
 
 FFMPEG_OPTIONS = {'options': '-vn'}
 
-async def play_chime():
+async def play_chime(force=False):
     vc = get(client.get_all_channels(), id=vc_id)
+    if len(vc.members) == 0 and not force:
+        return
     guild = client.get_guild(guild_id)
     await vc.connect()
     vclient = guild.voice_client
@@ -30,8 +32,8 @@ async def play_chime():
 
 @client.listen()
 async def on_message(message: discord.Message):
-    if message.content == "test_chime":
-        await play_chime()
+    if message.content == "_test_chime":
+        await play_chime(force=True)
 
 @client.event
 async def on_ready():
