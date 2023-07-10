@@ -24,7 +24,7 @@ client = commands.Bot(command_prefix='$', intents=intents)
 FFMPEG_OPTIONS = {'options': '-vn'}
 
 playing = False
-enabled = False
+enabled = True
 
 async def play_chime(force=False):
     global playing
