@@ -3,10 +3,12 @@
 import discord
 import nacl
 import sys
+import os
 from asyncio import sleep
 from discord.utils import get
 from discord.ext import commands
 from datetime import datetime
+from pathlib import Path
 from config import *
 
 intents = discord.Intents.default()
@@ -18,12 +20,14 @@ FFMPEG_OPTIONS = {'options': '-vn'}
 playing = False
 enabled = True
 
-async def disconnect(vc):
+async def disconnect(vc, filename):
     global playing
     await vc.disconnect(force=False)
+    if filename != "./mbctimer.wav":
+        os.remove(filename)
     playing = False
 
-async def play_chime(force=False):
+async def play_chime(force=False, filename="./mbctimer.wav"):
     global playing
     if playing:
         return
@@ -36,8 +40,8 @@ async def play_chime(force=False):
     playing = True
     await vc.connect()
     vclient = guild.voice_client
-    await vclient.play(discord.FFmpegPCMAudio("./mbctimer.wav", **FFMPEG_OPTIONS),
-                       after=lambda e: client.loop.create_task(disconnect(vclient)))
+    await vclient.play(discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS),
+                       after=lambda e: client.loop.create_task(disconnect(vclient, filename)))
 
 @client.listen()
 async def on_message(message: discord.Message):
@@ -68,6 +72,12 @@ async def on_message(message: discord.Message):
             await message.channel.send("sound is playing; try again after few seconds")
         else:
             await play_chime(force=True)
+    elif message.content == "_play_this":
+        if len(message.attachments) != 1:
+            await message.channel.send("attach 1 audio file to play")
+        else:
+            await message.attachments[0].save(Path(message.attachments[0].filename))
+            await play_chime(force=True, filename=message.attachments[0].filename)
 
 @client.event
 async def on_ready():
