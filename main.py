@@ -69,14 +69,19 @@ async def on_message(message: discord.Message):
             await message.channel.send("bot enabled")
     elif message.content == "_test_chime":
         if playing:
-            await message.channel.send("sound is playing; try again after few seconds")
+            await message.channel.send("sound is playing; try again after few moments")
         else:
             await play_chime(force=True)
     elif message.content == "_play_this":
+        if playing:
+            await message.channel.send("sound is playing; try again after few moments")
+            return
         if len(message.attachments) != 1:
             await message.channel.send("attach 1 audio file to play")
         else:
+            msg = await message.channel.send("downloading")
             await message.attachments[0].save(Path(message.attachments[0].filename))
+            await msg.edit(content="downloaded, playing")
             await play_chime(force=True, filename=message.attachments[0].filename)
 
 @client.event
