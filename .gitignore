@@ -1,0 +1,14 @@
+# CPython 캐시
+__pycache__
+
+# 특정 IDE 관련
+.ipynb_checkpoints
+.idea
+venv
+.vscode
+
+# macOS / iPadOS 관련
+.DS_Store
+
+# 설정 파일
+config.py

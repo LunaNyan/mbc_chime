@@ -1,14 +1,5 @@
 #!/usr/bin/python3
 
-# =====
-# Bot Token
-bot_token = ""
-# Guild ID
-guild_id = 0
-# Voice Channel ID
-vc_id = 0
-# =====
-
 import discord
 import nacl
 import sys
@@ -16,6 +7,7 @@ from asyncio import sleep
 from discord.utils import get
 from discord.ext import commands
 from datetime import datetime
+from config import *
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -25,6 +17,11 @@ FFMPEG_OPTIONS = {'options': '-vn'}
 
 playing = False
 enabled = True
+
+async def disconnect(vc):
+    global playing
+    await vc.disconnect(force=False)
+    playing = False
 
 async def play_chime(force=False):
     global playing
@@ -40,8 +37,7 @@ async def play_chime(force=False):
     await vc.connect()
     vclient = guild.voice_client
     await vclient.play(discord.FFmpegPCMAudio("./mbctimer.wav", **FFMPEG_OPTIONS),
-                       after=lambda e: client.loop.create_task(vclient.disconnect(force=False)))
-    playing = False
+                       after=lambda e: client.loop.create_task(disconnect(vclient)))
 
 @client.listen()
 async def on_message(message: discord.Message):
