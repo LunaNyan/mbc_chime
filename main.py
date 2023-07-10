@@ -15,7 +15,8 @@ from discord.utils import get
 from discord.ext import commands
 from datetime import datetime
 
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.message_content = True
 client = commands.Bot(command_prefix='$', intents=intents)
 
 FFMPEG_OPTIONS = {'options': '-vn'}
@@ -40,7 +41,6 @@ async def on_ready():
     print("bot is ready")
     while True:
         dt = datetime.now()
-        print(f"{dt.hour}:{dt.minute}:{dt.second}")
         if dt.minute == 59 and dt.second == 52:
             await play_chime()
         await sleep(1)
