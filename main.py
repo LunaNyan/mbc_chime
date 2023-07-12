@@ -25,10 +25,13 @@ async def disconnect(vc, filename):
     await vc.disconnect(force=False)
     if filename != "./mbctimer.wav":
         os.remove(filename)
+    print("done")
     playing = False
 
 async def play_chime(force=False, filename="./mbctimer.wav"):
     global playing
+    global enabled
+    print(f"enabled : {enabled}, playing : {playing}")
     if playing:
         return
     vc = get(client.get_all_channels(), id=vc_id)
@@ -38,6 +41,7 @@ async def play_chime(force=False, filename="./mbctimer.wav"):
         return
     guild = client.get_guild(guild_id)
     playing = True
+    print("establishing vc connection")
     await vc.connect()
     vclient = guild.voice_client
     await vclient.play(discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS),
@@ -91,7 +95,8 @@ async def on_ready():
     while True:
         dt = datetime.now()
         if dt.minute == 59 and dt.second == 52:
+            print("calling")
             await play_chime()
-        await sleep(1)
+        await sleep(.5)
 
 client.run(bot_token)
