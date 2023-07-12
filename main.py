@@ -42,8 +42,8 @@ async def play_chime(force=False, filename="./mbctimer.wav"):
     print("establishing vc connection")
     await vc.connect()
     vclient = guild.voice_client
-    await vclient.play(discord.FFmpegPCMAudio(filename),
-                       after=lambda e: client.loop.create_task(disconnect(vclient, filename)))
+    vclient.play(discord.FFmpegPCMAudio(filename),
+                 after=lambda e: client.loop.create_task(disconnect(vclient, filename)))
 
 @client.listen()
 async def on_message(message: discord.Message):
