@@ -15,8 +15,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = commands.Bot(command_prefix='$', intents=intents)
 
-FFMPEG_OPTIONS = {'options': '-vn'}
-
 playing = False
 enabled = True
 
@@ -44,7 +42,7 @@ async def play_chime(force=False, filename="./mbctimer.wav"):
     print("establishing vc connection")
     await vc.connect()
     vclient = guild.voice_client
-    await vclient.play(discord.FFmpegPCMAudio(filename, **FFMPEG_OPTIONS),
+    await vclient.play(discord.FFmpegPCMAudio(filename),
                        after=lambda e: client.loop.create_task(disconnect(vclient, filename)))
 
 @client.listen()
@@ -88,15 +86,18 @@ async def on_message(message: discord.Message):
             await msg.edit(content="downloaded, playing")
             await play_chime(force=True, filename=message.attachments[0].filename)
 
+async def chime_tick():
+    while True:
+        dt = datetime.now()
+        if dt.minute == 59 and dt.second == 52:
+            print("calling chime (auto)")
+            await play_chime()
+        await sleep(.5)
+
 @client.event
 async def on_ready():
     print("bot is ready")
     await client.change_presence(activity=discord.Game(name="_help"))
-    while True:
-        dt = datetime.now()
-        if dt.minute == 59 and dt.second == 52:
-            print("calling")
-            await play_chime()
-        await sleep(.5)
+    client.loop.create_task(chime_tick())
 
 client.run(bot_token)
